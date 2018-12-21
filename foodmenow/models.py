@@ -25,8 +25,8 @@ class Preferences(models.Model):
 
     user_id = models.ForeignKey(Users, models.SET_NULL, null=True)
     distance = models.IntegerField(blank=True)
-    price_min = models.IntegerField(max_length=5, blank=True)
-    price_max = models.IntegerField(max_length=5, blank=True)
+    price_min = models.IntegerField(blank=True)
+    price_max = models.IntegerField(blank=True)
     review_min = models.CharField(max_length=4, blank=True)
     review_max = models.CharField(max_length=4, blank=True) 
     food_genre = models.CharField(max_length=256, blank=True, choices=[(genre, genre.value) for genre in FOOD_GENRE_CHOICES])
