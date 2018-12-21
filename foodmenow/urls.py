@@ -1,6 +1,12 @@
-from django.urls import path
+from django.urls import re_path, path
 from . import views
 
 urlpatterns = [
-    path('', views.bussiness_search)
+    re_path(r'.{0,3}(latitude=(?P<latitude>-?\d+\.\d+)).{0,3}(longitude=(?P<longitude>-?\d+\.\d+))(.{0,3}radius=(?P<radius>\d+))?$', views.bussiness_search)
 ]
+
+# (r'(latitude=(?P<latitude>\d+))\s*(logitude=(?P<longitude>\d+))\s*((radius=(?P<radius>\d+)?))
+# re_path(r'(latitude=(?P<latitude>\d+))\s*(logitude=(?P<longitude>\d+))\s*((radius=(?P<radius>\d+)?))', views.bussiness_search)
+# path('latitude=<latitude>&logitude=<longitude>&radius=<radius>/', views.bussiness_search)
+# re_path(r'(?P<latitude>-?\d+\.\d+).{1,3}(?P<longitude>-?\d+\.\d+)(.{1,3}(?P<radius>\d+))?/$', views.bussiness_search)
+# re_path(r'(?P<latitude>-?\d+\.\d+)&(?P<longitude>-?\d+\.\d+)(&(?P<radius>\d+))?/$', views.bussiness_search)
