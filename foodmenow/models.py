@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from enum import Enum
 
 # Create your models here.
@@ -13,7 +14,7 @@ class Users(models.Model):
     password_hash = models.CharField(max_length=256)
     email = models.EmailField(unique=True)
     profile_picture = models.CharField(max_length=256, blank=True )
-    private = models.BooleanField(blank=True)
+    private = models.BooleanField(default=False)
 
     def __str__(self):
         return f'User {self.id}'
@@ -22,15 +23,14 @@ class Users(models.Model):
         verbose_name_plural = 'Users'
 
 class Preferences(models.Model):
-
-    user_id = models.ForeignKey(Users, models.SET_NULL, null=True)
-    distance = models.IntegerField(blank=True)
-    price_min = models.IntegerField(blank=True)
-    price_max = models.IntegerField(blank=True)
-    review_min = models.CharField(max_length=4, blank=True)
-    review_max = models.CharField(max_length=4, blank=True) 
-    food_genre = models.CharField(max_length=256, blank=True, choices=[(genre, genre.value) for genre in FOOD_GENRE_CHOICES])
-
+    user = models.OneToOneField(Users, on_delete=models.CASCADE)
+    distance = models.IntegerField(blank=True, default=5)
+    price_min = models.CharField(max_length=5, blank=True)
+    price_max = models.CharField(max_length=5, blank=True)
+    rating_min = models.CharField(max_length=5, blank=True)
+    rating_max = models.CharField(max_length=5, blank=True)
+    food_genre = ArrayField(models.CharField(max_length=256, blank=True))
+    
     def __str__(self):
         return 'Preference'
 

@@ -6,11 +6,14 @@ from food_me_now_backend.settings import YELP_SECRET_KEY
 
 # Create your views here.
 
-def bussiness_search(request, latitude, longitude, radius):
+def restaurant_search(request, latitude, longitude, radius, price, categories):
 
     params = {'latitude' : latitude,
             'longitude' : longitude,
-            'radius' : radius }
+            'term' : 'restaurants',
+            'radius' : radius,
+            'price' : price,
+            'categories' : categories }
 
     r = requests.get('https://api.yelp.com/v3/businesses/search', params=params, headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
 
