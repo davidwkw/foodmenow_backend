@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-# from food_me_now_backend.settings import YELP_SECRET_KEY
 import requests, json
 from food_me_now_backend.settings import YELP_SECRET_KEY
 
@@ -20,3 +19,39 @@ def restaurant_search(request, latitude, longitude, radius, price, categories):
     data = r.json()
 
     return JsonResponse(data)
+
+def restaurant_reviews(request, id):
+
+    r = requests.get(f'https://api.yelp.com/v3/businesses/{id}', headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
+
+    data = r.json()
+
+    return JsonResponse(data)
+
+def restaurant_details(request, id):
+
+    r =  requests.get(f'https://api.yelp.com/v3/businesses/{id}/reviews', headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
+
+    data =  r.json()
+
+    return JsonResponse(data)
+
+# def create_user(request):
+
+#     if request.method == 'POST':
+
+#         post_data = request.content_params
+
+#         new_user = Users(email=post_data.get('email'),
+#                         password= post_data.get('password'),
+#                         username=post_data.get('username'))
+
+
+
+# def login_user(request):
+
+#     if request.method == 'POST':
+#         post_data = request.content_params
+
+#         new_user = Users(email=post_data.get('email'),
+#                         password= post_data.get('password'))
