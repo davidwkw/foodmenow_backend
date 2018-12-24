@@ -16,6 +16,9 @@ def restaurant_search(request, latitude, longitude, radius, price, categories):
               'price': price,
               'categories': categories}
 
+    import pdb
+    pdb.set_trace()
+
     r = requests.get('https://api.yelp.com/v3/businesses/search',
                      params=params, headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
 
