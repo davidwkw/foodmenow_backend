@@ -7,20 +7,18 @@ from foodmenow.models import User, Preference
 # Create your views here.
 
 
-def restaurant_search(request, latitude, longitude, radius, price, categories):
+def restaurant_search(request):
 
-    params = {'latitude': latitude,
-              'longitude': longitude,
-              'term': 'restaurants',
-              'radius': radius,
-              'price': price,
-              'categories': categories}
-
-    import pdb
-    pdb.set_trace()
+    payload = {'latitude': request.GET.get('latitude', ''),
+               'longitude': request.GET.get('longitude', ''),
+               'radius': request.GET.get('radius', ''),
+               'price': request.GET.get('price', ''),
+               'categories': request.GET.get('categories', ''),
+               'term': 'restaurants',
+               }
 
     r = requests.get('https://api.yelp.com/v3/businesses/search',
-                     params=params, headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
+                     params=payload, headers={'Authorization': f'Bearer {YELP_SECRET_KEY}'})
 
     data = r.json()
 
@@ -51,7 +49,7 @@ def create_user(request):
 
     if request.method == 'POST':
 
-        post_data = request.content_params
+        post_data = request.POST
 
         new_user = User(email=post_data.get('email'),
                         password_hash=User.set_password(
