@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Users, Preferences
+from .models import User, Preference
 
 
 # Register your models here.
 
-admin.site.register(Users)
-admin.site.register(Preferences)
+admin.site.register(User)
+admin.site.register(Preference)
