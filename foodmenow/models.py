@@ -4,6 +4,10 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import CommonPasswordValidator, MinimumLengthValidator, validate_password
 from enum import Enum
+import jwt
+import datetime
+from food_me_now_backend.settings import SECRET_KEY
+from django.http import JsonResponse
 
 # Create your models here.
 
@@ -28,21 +32,60 @@ class User(models.Model):
     def __str__(self):
         return f'User {self.id}'
 
-    def set_password(self, password):
+    @classmethod
+    def set_password(cls, password):
 
-        if validate_password(password, password_validators=[
-                CommonPasswordValidator, MinimumLengthValidator]):
+        # if not validate_password(password, user=None, password_validators=MinimumLengthValidator):
 
-            return make_password(password)
+        password_hash = make_password(password)
+
+        return password_hash
 
     def check_password(self, password):
 
         return check_password(password, self.password_hash)
 
+    @classmethod
+    def encode_auth_token(cls, user_id):
+        """
+        Generates the Auth Token
+        :return: string
+        """
+        try:
+            payload = {
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=0),
+                'iat': datetime.datetime.utcnow(),
+                'sub': user_id
+            }
+
+            return jwt.encode(
+                payload,
+                SECRET_KEY,
+                algorithm='HS256'
+            )
+        except Exception as e:
+            print(e)
+            return e
+
+    @classmethod
+    def decode_auth_token(auth_token):
+        """
+        Decodes the auth token
+        :param auth_token:
+        :return: integer|string
+        """
+        try:
+            payload = jwt.decode(auth_token, SECRET_KEY)
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return 0
+        except jwt.InvalidTokenError:
+            return 0
+
 
 class Preference(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    distance = models.IntegerField(blank=True, default=5)
+    distance = models.IntegerField(blank=True, default=10)
     price_min = models.CharField(max_length=5, blank=True)
     price_max = models.CharField(max_length=5, blank=True)
     rating_min = models.CharField(max_length=5, blank=True)
