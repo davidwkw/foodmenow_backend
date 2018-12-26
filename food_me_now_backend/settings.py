@@ -1,4 +1,7 @@
+import os
 import django_heroku
+from dotenv import load_dotenv
+
 """
 Django settings for food_me_now_backend project.
 
@@ -11,26 +14,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
-# dotenv_path = os.path.join(BASE_DIR, '.env')
-
-# load_dotenv(dotenv_path)
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+dotenv_path = os.path.join(BASE_DIR, '.env')
+
+load_dotenv(dotenv_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
+YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = os.environ.get('SECRET_KEY')
 
-YELP_SECRET_KEY = os.environ.get('YELP_SECRET_KEY')
+# YELP_SECRET_KEY = os.environ.get('YELP_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -154,7 +155,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', )
 }
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -168,4 +169,4 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
 )
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
