@@ -61,9 +61,9 @@ def restaurant_details(request, id):
 
 def create_user(request):
 
-    if request.method == 'GET':
+    if request.method == 'POST':
 
-        post_data = request.GET
+        post_data = request.POST
 
         new_user = User(email=post_data.get('email', ''),
                         password_hash=User.set_password(
