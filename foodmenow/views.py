@@ -58,7 +58,7 @@ def restaurant_details(request, id):
 
 # User related
 
-
+@csrf_exempt
 def create_user(request):
 
     if request.method == 'POST':
