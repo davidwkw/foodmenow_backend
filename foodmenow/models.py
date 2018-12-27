@@ -85,16 +85,21 @@ class User(models.Model):
 
 class Preference(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    distance = models.IntegerField(blank=True, default=10)
-    price_min = models.CharField(max_length=5, blank=True)
-    price_max = models.CharField(max_length=5, blank=True)
-    rating_min = models.CharField(max_length=5, blank=True)
-    rating_max = models.CharField(max_length=5, blank=True)
-    food_genre = ArrayField(models.CharField(max_length=256, blank=True))
+    distance = models.IntegerField(default=10, blank=True, null=True)
+    price_min = models.CharField(
+        max_length=5, default='', blank=True, null=True)
+    price_max = models.CharField(
+        max_length=5, default='', blank=True, null=True)
+    rating_min = models.CharField(
+        max_length=5, default='', blank=True, null=True)
+    rating_max = models.CharField(
+        max_length=5, default='', blank=True, null=True)
+    food_genre = ArrayField(models.CharField(
+        max_length=256, blank=True, default=''), null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'Preference'
         db_table = 'preferences'
 
     def __str__(self):
-        return 'Preference'
+        return f'User {self.user_id}\'s preference'

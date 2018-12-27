@@ -59,18 +59,34 @@ def restaurant_details(request, id):
 # User related
 
 
+@csrf_exempt
 def create_user(request):
 
-    if request.method == 'GET':
+    if request.method == 'POST':
 
-        post_data = request.GET
+        post_data = request.POST
 
-        new_user = User(email=post_data.get('email', ''),
+        new_user = User(email=post_data['email'],
                         password_hash=User.set_password(
-                        post_data.get('password', '')),
+                        post_data['password']),
                         username=post_data.get('username', ''))
 
         new_user.save()
+        new_user_preference = Preference(user=new_user,
+                                         distance=post_data.get(
+                                             'distance', '10'),
+                                         price_min=post_data.get(
+                                             'price_min', ''),
+                                         price_max=post_data.get(
+                                             'price_max', ''),
+                                         rating_min=post_data.get(
+                                             'rating_min', ''),
+                                         rating_max=post_data.get(
+                                             'rating_max', ''),
+                                         food_genre=[post_data.get(
+                                             'food_genre', '')]
+                                         )
+        new_user_preference.save()
 
         auth_token = new_user.encode_auth_token(new_user.id)
 
@@ -132,6 +148,7 @@ def login_user(request):
         return JsonResponse(responseObject)
 
 
+@csrf_exempt
 def update_preferences(request):
 
     if request.META['HTTP_AUTHORIZATION']:
@@ -142,20 +159,27 @@ def update_preferences(request):
 
         user = User.objects.get(id=user_id)
 
-        if request.method == 'POST':
+        if request.method == 'PUT':
 
-            post_data = request.POST
+            post_data = request.PUT
 
-            user_preference = user.Preference(distance=post_data.get('distance', ''),
-                                              price_min=post_data.get(
-                'price_min', ''),
-                price_max=post_data.get(
-                'price_max', ''),
-                rating_min=post_data.get(
-                'rating_min', ''),
-                rating_max=post_data.get(
-                'rating_max', ''),
-                food_genre=post_data.get('food_genre', ''))
+            import pdb
+            pdb.set_trace()
+
+            user_preference = Preference(user=user,
+                                         distance=post_data.get(
+                                             'distance', user.preference.distance),
+                                         price_min=post_data.get(
+                                             'price_min', user.preference.price_min),
+                                         price_max=post_data.get(
+                                             'price_max', user.preference.price_max),
+                                         rating_min=post_data.get(
+                                             'rating_min', user.preference.rating_min),
+                                         rating_max=post_data.get(
+                                             'rating_max', user.preference.rating_max),
+                                         food_genre=[post_data.get(
+                                             'food_genre', '')]
+                                         )
 
             user_preference.save()
 
