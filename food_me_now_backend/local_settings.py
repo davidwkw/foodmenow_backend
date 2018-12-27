@@ -1,6 +1,7 @@
 import os
 import dj_database_url
 from dotenv import load_dotenv
+from settings import PROJECT_ROOT, SITE_ROOT
 
 """
 Django settings for food_me_now_backend project.
@@ -13,11 +14,6 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-
-try:
-    from local_settings import *
-except Exception as e:
-    pass
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +35,7 @@ YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
 # YELP_SECRET_KEY = os.environ.get('YELP_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
 #    '127.0.0.1',
@@ -100,10 +96,16 @@ WSGI_APPLICATION = 'food_me_now_backend.wsgi.application'
 
 
 # Database
+# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'foodmenow',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -171,5 +173,3 @@ STATICFILES_DIRS = (
 )
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
