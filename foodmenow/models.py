@@ -67,7 +67,7 @@ class User(models.Model):
             print(e)
             return e
 
-    @classmethod
+    @staticmethod
     def decode_auth_token(auth_token):
         """
         Decodes the auth token

@@ -5,11 +5,13 @@ from django.http import JsonResponse, HttpResponse
 from foodmenow.models import User, Preference
 from food_me_now_backend.settings import YELP_SECRET_KEY
 from rest_framework.authtoken.models import Token
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK,
     HTTP_405_METHOD_NOT_ALLOWED,
+    HTTP_401_UNAUTHORIZED
 )
 
 
@@ -72,9 +74,6 @@ def create_user(request):
 
         auth_token = new_user.encode_auth_token(new_user.id)
 
-        import pdb
-        pdb.set_trace()
-
         responseObject = {
             'status': HTTP_200_OK,
             'message': 'User successfully created.',
@@ -93,15 +92,16 @@ def create_user(request):
         return JsonResponse(responseObject)
 
 
+@csrf_exempt
 def login_user(request):
 
     if request.method == 'POST':
 
-        post_data = request.data
+        post_data = request.POST
 
-        user = User.objects.get(email=post_data.get('email'))
+        user = User.objects.get(email=post_data['email'])
 
-        if user and user.check_password(post_data.get('password')):
+        if user and user.check_password(post_data['password']):
 
             auth_token = user.encode_auth_token(user.id)
 
@@ -136,24 +136,32 @@ def update_preferences(request):
 
     if request.META['HTTP_AUTHORIZATION']:
 
-        auth_header = request.META['HTTP_AUTHORIZATION']
+        auth_token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+
+        user_id = User.decode_auth_token(auth_token)
+
+        user = User.objects.get(id=user_id)
 
         if request.method == 'POST':
 
             post_data = request.POST
 
-            preference = Preference(distance=post_data.get('distance', ''),
-                                    price_min=post_data.get('price_min', ''),
-                                    price_max=post_data.get('price_max', ''),
-                                    rating_min=post_data.get('rating_min', ''),
-                                    rating_max=post_data.get('rating_max', ''),
-                                    food_genre=post_data.get('food_genre', ''))
+            user_preference = user.Preference(distance=post_data.get('distance', ''),
+                                              price_min=post_data.get(
+                'price_min', ''),
+                price_max=post_data.get(
+                'price_max', ''),
+                rating_min=post_data.get(
+                'rating_min', ''),
+                rating_max=post_data.get(
+                'rating_max', ''),
+                food_genre=post_data.get('food_genre', ''))
 
-            preference.save()
+            user_preference.save()
 
             responseObject = {
                 'status': HTTP_200_OK,
-                'message': 'Preference successfully created.',
+                'message': 'User preference successfully created.',
             }
 
             return JsonResponse(responseObject)
@@ -170,3 +178,12 @@ def update_preferences(request):
             }
 
             return JsonResponse(responseObject)
+
+    else:
+
+        responseObject = {
+            'status': HTTP_401_UNAUTHORIZED,
+            'message': 'Only POST requests are allowed'
+        }
+
+        return JsonResponse(responseObject)
