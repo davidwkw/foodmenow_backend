@@ -1,20 +1,16 @@
 import requests
 import json
-from django.shortcuts import render
+import re
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from foodmenow.models import User, Preference
 from food_me_now_backend.settings import YELP_SECRET_KEY
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
-    HTTP_200_OK
+    HTTP_200_OK,
+    HTTP_405_METHOD_NOT_ALLOWED,
 )
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 
 # from django.contrib.auth import login, logout
@@ -69,8 +65,8 @@ def create_user(request):
 
         new_user = User(email=post_data.get('email', ''),
                         password_hash=User.set_password(
-            post_data.get('password', '')),
-            username=post_data.get('username', ''))
+                        post_data.get('password', '')),
+                        username=post_data.get('username', ''))
 
         new_user.save()
 
@@ -82,7 +78,16 @@ def create_user(request):
         responseObject = {
             'status': HTTP_200_OK,
             'message': 'User successfully created.',
-            'token': auth_token
+            'token': auth_token.decode()
+        }
+
+        return JsonResponse(responseObject)
+
+    else:
+
+        responseObject = {
+            'status': HTTP_405_METHOD_NOT_ALLOWED,
+            'message': 'Only GET requests are allowed'
         }
 
         return JsonResponse(responseObject)
@@ -96,42 +101,72 @@ def login_user(request):
 
         user = User.objects.get(email=post_data.get('email'))
 
-        if user is None:
+        if user and user.check_password(post_data.get('password')):
 
-            return HttpResponse('User does not exist')
+            auth_token = user.encode_auth_token(user.id)
 
-        elif user and user.check_password(post_data.get('password')):
+            responseObject = {
+                'status': HTTP_200_OK,
+                'message': 'User successfully created.',
+                'token': auth_token.decode()
+            }
 
-            return JsonResponse({'status': 'Success'},
-                                status=HTTP_200_OK)
+            return JsonResponse(responseObject)
 
+        else:
 
-def update_preferences(request):
+            responseObject = {
+                'status': HTTP_400_BAD_REQUEST,
+                'message': 'User email or password does not exist.',
+            }
 
-    if request.method == 'POST':
+            return JsonResponse(responseObject)
 
-        post_data = request.POST
-
-        preference = Preference(distance=post_data.get('distance', ''),
-                                price_min=post_data.get('price_min', ''),
-                                price_max=post_data.get('price_max', ''),
-                                rating_min=post_data.get('rating_min', ''),
-                                rating_max=post_data.get('rating_max', ''),
-                                food_genre=post_data.get('food_genre', ''))
-
-        preference.save()
+    else:
 
         responseObject = {
-            'status': HTTP_200_OK,
-            'message': 'Preference successfully created.',
+            'status': HTTP_405_METHOD_NOT_ALLOWED,
+            'message': 'Only POST requests are allowed'
         }
 
         return JsonResponse(responseObject)
 
-    elif request.method == 'PUT':
 
-        post_data = request.PUT
+def update_preferences(request):
 
-    else:
+    if request.META['HTTP_AUTHORIZATION']:
 
-        return HttpResponse('Wrong request method')
+        auth_header = request.META['HTTP_AUTHORIZATION']
+
+        if request.method == 'POST':
+
+            post_data = request.POST
+
+            preference = Preference(distance=post_data.get('distance', ''),
+                                    price_min=post_data.get('price_min', ''),
+                                    price_max=post_data.get('price_max', ''),
+                                    rating_min=post_data.get('rating_min', ''),
+                                    rating_max=post_data.get('rating_max', ''),
+                                    food_genre=post_data.get('food_genre', ''))
+
+            preference.save()
+
+            responseObject = {
+                'status': HTTP_200_OK,
+                'message': 'Preference successfully created.',
+            }
+
+            return JsonResponse(responseObject)
+
+        elif request.method == 'PUT':
+
+            post_data = request.PUT
+
+        else:
+
+            responseObject = {
+                'status': HTTP_405_METHOD_NOT_ALLOWED,
+                'message': 'Only POST requests are allowed'
+            }
+
+            return JsonResponse(responseObject)
