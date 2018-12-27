@@ -70,15 +70,20 @@ def create_user(request):
                         post_data.get('password', '')),
                         username=post_data.get('username', ''))
 
-        new_user.save()
+        try:
+            new_user.save()
 
-        auth_token = new_user.encode_auth_token(new_user.id)
+            auth_token = new_user.encode_auth_token(new_user.id)
 
-        responseObject = {
-            'status': HTTP_200_OK,
-            'message': 'User successfully created.',
-            'token': auth_token.decode()
-        }
+            responseObject = {
+                'status': HTTP_200_OK,
+                'message': 'User successfully created.',
+                'token': auth_token.decode()
+            }
+        except Exception as e:
+            responseObject = {
+                'error': e
+            }
 
         return JsonResponse(responseObject)
 
