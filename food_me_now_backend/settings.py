@@ -42,9 +42,9 @@ YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = [
-#    '127.0.0.1',
-#    'foodmenow.herokuapp.com/'
-    "*",
+    # '127.0.0.1',
+    # 'foodmenow.herokuapp.com/',
+    '*'
 ]
 
 # Application definition
@@ -104,6 +104,11 @@ WSGI_APPLICATION = 'food_me_now_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'foodmenow',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
