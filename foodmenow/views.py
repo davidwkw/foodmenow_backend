@@ -58,7 +58,6 @@ def restaurant_details(request, id):
 
 # User related
 
-
 @csrf_exempt
 def create_user(request):
 
@@ -88,15 +87,16 @@ def create_user(request):
                                          )
         new_user_preference.save()
 
+
         auth_token = new_user.encode_auth_token(new_user.id)
 
-        responseObject = {
-            'status': HTTP_200_OK,
-            'message': 'User successfully created.',
-            'token': auth_token.decode()
-        }
+         responseObject = {
+                'status': HTTP_200_OK,
+                'message': 'User successfully created.',
+                'token': auth_token.decode()
+         }
 
-        return JsonResponse(responseObject)
+          return JsonResponse(responseObject)
 
     else:
 
