@@ -220,17 +220,15 @@ def update_preferences(request):
                         user.preference.__dict__[param] = post_data.get(
                             param, user.preference.__dict__[param])
 
-                if '' in user.preference.food_genre:
-
-                    for _ in user.preference.food_genre:
-
-                        user.preference.food_genre.remove('')
-
                 for genre in post_data.get('food_genre'):
 
                     user.preference.food_genre.append(genre)
 
                 temp = list(set(user.preference.food_genre))
+
+                if '' in temp:
+
+                    temp.remove('')
 
                 user.preference.food_genre = temp
 
@@ -283,7 +281,12 @@ def user_preferences(request):
 
         if user:
 
-            return JsonResponse(serializers.serialize('json', user))
+            data = json.loads(serializers.serialize(
+                'json', [user.preference]))[0]['fields']
+
+            del data['user']
+
+            return JsonResponse(data)
 
         else:
 
