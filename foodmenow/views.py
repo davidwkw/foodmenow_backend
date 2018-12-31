@@ -34,9 +34,6 @@ def restaurant_search(request):
 
             category_list = [", ".join(user.preference.food_genre)]
 
-            import pdb
-            pdb.set_trace()
-
             payload = {'latitude': request.GET.get('latitude', ''),
                        'longitude': request.GET.get('longitude', ''),
                        'radius': user.preference.distance,
@@ -63,8 +60,8 @@ def restaurant_search(request):
 
     else:
 
-        payload = {'latitude': request.GET.get('latitude', ''),
-                   'longitude': request.GET.get('longitude', ''),
+        payload = {'latitude': request.GET['latitude'],
+                   'longitude': request.GET['longitude'],
                    'radius': request.GET.get('radius', ''),
                    'price': request.GET.get('price', ''),
                    'categories': request.GET.get('categories', ''),
@@ -95,6 +92,26 @@ def restaurant_details(request, id):
 
     r = requests.get(f'https://api.yelp.com/v3/businesses/{id}/reviews', headers={
         'Authorization': f'Bearer {YELP_SECRET_KEY}'})
+
+    data = r.json()
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def uber_call(request):
+
+    payload = {
+        'fare_id': request.POST['fare_id'],
+        'start_latitude': request.POST['current_latitude'],
+        'start_longitude': request.POST['current_longitude'],
+        'end_latitude': request.POST['destination_latitude'],
+        'end_longitude': request.POST['destination_logitude']
+    }
+
+    r = requests.post(
+        'https://sandbox-api.uber.com/v1.2/requests', json=payload
+    )
 
     data = r.json()
 
@@ -220,17 +237,15 @@ def update_preferences(request):
                         user.preference.__dict__[param] = post_data.get(
                             param, user.preference.__dict__[param])
 
-                if '' in user.preference.food_genre:
-
-                    for _ in user.preference.food_genre:
-
-                        user.preference.food_genre.remove('')
-
                 for genre in post_data.get('food_genre'):
 
                     user.preference.food_genre.append(genre)
 
                 temp = list(set(user.preference.food_genre))
+
+                if '' in temp:
+
+                    temp.remove('')
 
                 user.preference.food_genre = temp
 
@@ -283,7 +298,12 @@ def user_preferences(request):
 
         if user:
 
-            return JsonResponse(serializers.serialize('json', user))
+            data = json.loads(serializers.serialize(
+                'json', [user.preference]))[0]['fields']
+
+            del data['user']
+
+            return JsonResponse(data)
 
         else:
 

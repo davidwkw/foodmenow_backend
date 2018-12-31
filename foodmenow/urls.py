@@ -8,8 +8,8 @@ urlpatterns = [
     path('user/create/', views.create_user),
     path('user/login/', views.login_user),
     path('user/update/preferences/', views.update_preferences),
-    path('user/preferences/', views.user_preferences)
-    # path('uber/', views.uber_call)
+    path('user/preferences/', views.user_preferences),
+    path('uber/', views.uber_call)
 ]
 
 # re_path(r'search.{0,3}(latitude=(?P<latitude>-?\d+\.\d+)).{0,3}(longitude=(?P<longitude>-?\d+\.\d+))(.{0,3}radius=(?P<radius>\d+))?(.{0,3}price=(?P<price>\d))?(.{0,3}categories=(?P<categories>(\w+,?)+))?/?', views.restaurant_search),
