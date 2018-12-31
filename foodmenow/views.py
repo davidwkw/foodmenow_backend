@@ -22,7 +22,7 @@ from rest_framework.status import (
 @csrf_exempt
 def restaurant_search(request):
 
-    if request.META['HTTP_AUTHORIZATION']:
+    if request.META.get('HTTP_AUTHORIZATION', False):
 
         auth_token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
 
@@ -213,7 +213,7 @@ def login_user(request):
 @csrf_exempt
 def update_preferences(request):
 
-    if request.META['HTTP_AUTHORIZATION']:
+    if request.META.get('HTTP_AUTHORIZATION', False):
 
         auth_token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
 
@@ -288,7 +288,7 @@ def update_preferences(request):
 @csrf_exempt
 def user_preferences(request):
 
-    if request.META['HTTP_AUTHORIZATION']:
+    if request.META.get('HTTP_AUTHORIZATION', False):
 
         auth_token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
 

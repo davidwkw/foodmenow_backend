@@ -27,8 +27,11 @@ load_dotenv(dotenv_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-
 YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
+UBER_CLIENT_ID = os.getenv('UBER_CLIENT_ID')
+UBER_CLIENT_SECRET = os.getenv('UBER_CLIENT_SECRET')
+UBER_SERVER_TOKEN = os.getenv('UBER_SERVER_TOKEN')
+UBER_ACCESS_TOKEN = os.getenv('UBER_ACCESS_TOKEN')
 
 # SECRET_KEY = os.environ.get('SECRET_KEY')
 
@@ -38,8 +41,8 @@ YELP_SECRET_KEY = os.getenv('YELP_SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-#    '127.0.0.1',
-#    'foodmenow.herokuapp.com/'
+    #    '127.0.0.1',
+    #    'foodmenow.herokuapp.com/'
     "*",
 ]
 
@@ -118,9 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 5,
-        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
