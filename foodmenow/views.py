@@ -4,7 +4,7 @@ import re
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse, QueryDict
 from foodmenow.models import User, Preference
-from food_me_now_backend.settings import YELP_SECRET_KEY
+from food_me_now_backend.settings import YELP_SECRET_KEY, UBER_CLIENT_ID, UBER_CLIENT_SECRET
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.status import (
@@ -14,6 +14,10 @@ from rest_framework.status import (
     HTTP_405_METHOD_NOT_ALLOWED,
     HTTP_401_UNAUTHORIZED
 )
+from uber_rides.auth import AuthorizationCodeGrant
+from uber_rides.client import UberRidesClient
+from uber_rides.errors import ClientError, ServerError, UberIllegalState
+
 # Create your views here.
 
 # APIs
@@ -79,7 +83,7 @@ def restaurant_search(request):
 @csrf_exempt
 def restaurant_reviews(request, id):
 
-    r = requests.get(f'https://api.yelp.com/v3/businesses/{id}', headers={
+    r = requests.get(f'https://api.yelp.com/v3/businesses/{id}/reviews/', headers={
         'Authorization': f'Bearer {YELP_SECRET_KEY}'})
 
     data = r.json()
@@ -90,7 +94,7 @@ def restaurant_reviews(request, id):
 @csrf_exempt
 def restaurant_details(request, id):
 
-    r = requests.get(f'https://api.yelp.com/v3/businesses/{id}/reviews', headers={
+    r = requests.get(f'https://api.yelp.com/v3/businesses/{id}', headers={
         'Authorization': f'Bearer {YELP_SECRET_KEY}'})
 
     data = r.json()
@@ -98,24 +102,154 @@ def restaurant_details(request, id):
     return JsonResponse(data)
 
 
+# @csrf_exempt
+# def uber_request(request):
+
+#     auth_flow = AuthorizationCodeGrant(
+#         UBER_CLIENT_ID,
+#         ['request'],
+#         UBER_CLIENT_SECRET,
+#         'http://localhost:8000/uber/request/'
+#     )
+
+#     try:
+
+#         post_data = json.loads(request.body.decode())
+
+#     except:
+
+#         auth_url = auth_flow.get_authorization_url()
+
+#         return JsonResponse({'authentication_url': auth_url})
+
+#     if post_data.get('uber_code_url', False):
+
+#         result = post_data['uber_code_url'].strip()
+
+#         uber_code = re.search("^.*\?code=(.*)$", result).group(1)
+
+#         uber_req = {
+#             'client_secret': (None, UBER_CLIENT_SECRET),
+#             'client_id': (None, UBER_CLIENT_ID),
+#             'code': (None, uber_code),
+#             'scope': (None, 'request'),
+#             'grant_type': (None, 'authorization_code'),
+#             'redirect_uri': (None, 'http://localhost:8000/uber/request/')
+#         }
+
+#         result = requests.post(
+#             'https://login.uber.com/oauth/v2/token', files=uber_req)
+
+#         import pdb
+#         pdb.set_trace()
+#     else:
+
+#         return HttpResponse('Uber code URL required')
+
+
+@csrf_exempt
+def uber_request(request):
+
+    auth_flow = AuthorizationCodeGrant(
+        UBER_CLIENT_ID,
+        {'request'},
+        UBER_CLIENT_SECRET,
+        'http://localhost:8000/uber/request/',
+    )
+
+    try:
+
+        post_data = json.loads(request.body.decode())
+
+    except:
+
+        auth_url = auth_flow.get_authorization_url()
+
+        return JsonResponse({'authentication_url': auth_url})
+
+    if post_data.get('uber_code_url', False):
+
+        result = post_data['uber_code_url'].strip()
+
+        state = re.search("^.*\?code=.*state=(.*)#_$", result).group(1)
+
+        auth_flow = AuthorizationCodeGrant(
+            UBER_CLIENT_ID,
+            {'request'},
+            UBER_CLIENT_SECRET,
+            'http://localhost:8000/uber/request/',
+            state
+        )
+
+        try:
+            session = auth_flow.get_session(result)
+            client = UberRidesClient(session, sandbox_mode=True)
+            credentials = session.oauth2credential
+
+        except (ClientError, UberIllegalState) as error:
+
+            return HttpResponse(error)
+
+        response = client.get_products(
+            post_data['current_latitude'], post_data['current_longitude'])
+
+        products = response.json.get('products')
+
+        product_id = products[0].get('product_id')
+
+        estimate = client.estimate_ride(
+            product_id=product_id,
+            start_latitude=post_data['current_latitude'],
+            start_longitude=post_data['current_longitude'],
+            end_latitude=post_data['destination_latitude'],
+            end_longitude=post_data['destination_logitude'],
+            seat_count=post_data['passenger_amt']
+        )
+
+        fare = estimate.json.get('fare')
+
+        response = client.request_ride(
+            product_id=product_id,
+            start_latitude=post_data['current_latitude'],
+            start_longitude=post_data['current_longitude'],
+            end_latitude=post_data['destination_latitude'],
+            end_longitude=post_data['destination_logitude'],
+            seat_count=post_data['passenger_amt'],
+            fare_id=fare['fare_id']
+        )
+
+        request = response.json
+        request_id = request.get('request_id')
+
+        return HttpResponse('Success')
+
+    else:
+
+        return HttpResponse('Uber code URL required')
+
+
 @csrf_exempt
 def uber_call(request):
 
-    payload = {
-        'fare_id': request.POST['fare_id'],
-        'start_latitude': request.POST['current_latitude'],
-        'start_longitude': request.POST['current_longitude'],
-        'end_latitude': request.POST['destination_latitude'],
-        'end_longitude': request.POST['destination_logitude']
-    }
+    if request.method == 'POST':
 
-    r = requests.post(
-        'https://sandbox-api.uber.com/v1.2/requests', json=payload
-    )
+        post_data = json.loads(request.body.decode())
 
-    data = r.json()
+        payload = {
+            'fare_id': request.POST['fare_id'],
+            'start_latitude': request.POST['current_latitude'],
+            'start_longitude': request.POST['current_longitude'],
+            'end_latitude': request.POST['destination_latitude'],
+            'end_longitude': request.POST['destination_logitude']
+        }
 
-    return JsonResponse(data)
+        r = requests.post(
+            'https://sandbox-api.uber.com/v1.2/requests', json=payload
+        )
+
+        data = r.json()
+
+        return JsonResponse(data)
 
 # User related
 
@@ -129,8 +263,8 @@ def create_user(request):
 
         new_user = User(email=post_data['email'],
                         password_hash=User.set_password(
-                        post_data['password']),
-                        username=post_data.get('username', ''))
+            post_data['password']),
+            username=post_data.get('username', ''))
 
         new_user.save()
         new_user_preference = Preference(user=new_user,
@@ -176,6 +310,9 @@ def login_user(request):
     if request.method == 'POST':
 
         post_data = json.loads(request.body.decode())
+
+        import pdb
+        pdb.set_trace()
 
         user = User.objects.get(email=post_data['email'])
 
