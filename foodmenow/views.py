@@ -168,7 +168,7 @@ def uber_request(request):
 
                 pass
 
-            if post_data.get('display_products', False) == 'true':
+            if post_data.get('display_products', False):
 
                 response = client.get_products(
                     post_data['current_latitude'], post_data['current_longitude'])
@@ -177,7 +177,7 @@ def uber_request(request):
 
                 return JsonResponse(products, safe=False)
 
-            elif post_data.get('get_estimate', False) == 'true':
+            elif post_data.get('get_estimate', False):
 
                 estimate = client.estimate_ride(
                     product_id=product_id,
@@ -192,7 +192,7 @@ def uber_request(request):
 
                 return JsonResponse(fare, safe=False)
 
-            elif post_data.get('request_ride', False) == 'true':
+            elif post_data.get('request_ride', False):
 
                 response = client.request_ride(
                     product_id=product_id,
@@ -201,7 +201,7 @@ def uber_request(request):
                     end_latitude=post_data['destination_latitude'],
                     end_longitude=post_data['destination_longitude'],
                     seat_count=post_data['passenger_amt'],
-                    fare_id=post_data['fare_id']
+                    fare_id=fare_id
                 )
 
                 request = response.json
@@ -209,7 +209,7 @@ def uber_request(request):
 
                 return JsonResponse(request_id, safe=False)
 
-            elif post_data.get('ride_details') == 'true':
+            elif post_data.get('ride_details'):
 
                 response = client.get_ride_details(request_id)
 
@@ -217,7 +217,7 @@ def uber_request(request):
 
                 return JsonResponse(ride)
 
-            elif post_data.get('cancel_ride', False) == 'true':
+            elif post_data.get('cancel_ride', False):
 
                 response = client.cancel_ride(request_id)
 
