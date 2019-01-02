@@ -20,8 +20,6 @@ from uber_rides.client import UberRidesClient
 from uber_rides.errors import ClientError, ServerError, UberIllegalState
 from uber_rides.session import Session, OAuth2Credential
 
-# Create your views here.
-
 # APIs
 
 
