@@ -71,7 +71,8 @@ def restaurant_search(request):
                    'radius': request.GET.get('radius', ''),
                    'price': request.GET.get('price', ''),
                    'categories': request.GET.get('categories', ''),
-                   'term': 'restaurants',
+                   'term': ['restaurants', 'food'],
+                   'limit': 25,
                    }
 
         r = requests.get('https://api.yelp.com/v3/businesses/search',
@@ -113,7 +114,7 @@ def uber_request(request):
             UBER_CLIENT_ID,
             {'request'},
             UBER_CLIENT_SECRET,
-            'http://localhost:8000/uber/request/',
+            'https://react-foodme.herokuapp.com/',
         )
 
         try:
@@ -136,7 +137,7 @@ def uber_request(request):
                 uber_user_credentials['expires_in_seconds'],
                 set(uber_user_credentials['scopes']),
                 'authorization_code',
-                'http://localhost:8000/uber/request/',
+                'https://react-foodme.herokuapp.com/',
                 UBER_CLIENT_SECRET,
                 uber_user_credentials['refresh_token']
             )
@@ -161,7 +162,7 @@ def uber_request(request):
 
             try:
 
-                request_id = post_data['reqeust_id']
+                request_id = post_data['request_id']
 
             except:
 
@@ -226,7 +227,7 @@ def uber_request(request):
                 UBER_CLIENT_ID,
                 {'request'},
                 UBER_CLIENT_SECRET,
-                'http://localhost:8000/uber/request/',
+                'https://react-foodme.herokuapp.com/',
                 state
             )
 
@@ -271,29 +272,6 @@ def uber_request(request):
         }
 
         return JsonResponse(responseObject)
-
-# @csrf_exempt
-# def uber_call(request):
-
-#     if request.method == 'POST':
-
-#         post_data = json.loads(request.body.decode())
-
-#         payload = {
-#             'fare_id': request.POST['fare_id'],
-#             'start_latitude': request.POST['current_latitude'],
-#             'start_longitude': request.POST['current_longitude'],
-#             'end_latitude': request.POST['destination_latitude'],
-#             'end_longitude': request.POST['destination_logitude']
-#         }
-
-#         r = requests.post(
-#             'https://sandbox-api.uber.com/v1.2/requests', json=payload
-#         )
-
-#         data = r.json()
-
-#         return JsonResponse(data)
 
 # User related
 
