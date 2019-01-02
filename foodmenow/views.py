@@ -209,6 +209,14 @@ def uber_request(request):
 
                 return JsonResponse(request_id)
 
+            elif request.POST.get('ride_details'):
+
+                response = client.get_ride_details(request_id)
+
+                ride = response.json
+
+                return JsonResponse(ride)
+
             elif request.POST.get('cancel_ride', False):
 
                 response = client.cancel_ride(request_id)
@@ -268,7 +276,7 @@ def uber_request(request):
 
         responseObject = {
             'status': HTTP_405_METHOD_NOT_ALLOWED,
-            'message': 'Only GET requests are allowed'
+            'message': 'Only POST requests are allowed'
         }
 
         return JsonResponse(responseObject)
