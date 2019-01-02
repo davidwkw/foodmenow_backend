@@ -154,30 +154,46 @@ def uber_request(request):
 
             try:
 
-                fare_id = post_data['fare_id']
-
-            except:
-
-                pass
-
-            try:
-
                 request_id = post_data['request_id']
 
             except:
 
                 pass
 
-            if post_data.get('display_products', False):
+            if post_data.get('cancel_ride', False) and post_data.get('ride_details', False) and post_data.get('get_estimate', False) and post_data.get('display_products', False):
 
-                response = client.get_products(
-                    post_data['current_latitude'], post_data['current_longitude'])
+                response = client.cancel_ride(request_id)
 
-                products = response.json.get('products')
+                ride = response.json
 
-                return JsonResponse(products, safe=False)
+                return JsonResponse(ride, safe=False)
 
-            elif post_data.get('get_estimate', False):
+            elif post_data.get('ride_details', False) and post_data.get('get_estimate', False) and post_data.get('display_products', False):
+
+                response = client.get_ride_details(request_id)
+
+                ride = response.json
+
+                return JsonResponse(ride)
+
+            elif post_data.get('request_ride', False) and post_data.get('get_estimate', False) and post_data.get('display_products', False):
+
+                response = client.request_ride(
+                    product_id=product_id,
+                    start_latitude=post_data['current_latitude'],
+                    start_longitude=post_data['current_longitude'],
+                    end_latitude=post_data['destination_latitude'],
+                    end_longitude=post_data['destination_longitude'],
+                    seat_count=post_data['passenger_amt'],
+                    fare_id=post_data['fare_id']
+                )
+
+                request = response.json
+                request_id = request.get('request_id')
+
+                return JsonResponse(request_id, safe=False)
+
+            elif post_data.get('get_estimate', False) and post_data.get('display_products', False):
 
                 estimate = client.estimate_ride(
                     product_id=product_id,
@@ -192,42 +208,18 @@ def uber_request(request):
 
                 return JsonResponse(fare, safe=False)
 
-            elif post_data.get('request_ride', False):
+            elif post_data.get('display_products', False):
 
-                response = client.request_ride(
-                    product_id=product_id,
-                    start_latitude=post_data['current_latitude'],
-                    start_longitude=post_data['current_longitude'],
-                    end_latitude=post_data['destination_latitude'],
-                    end_longitude=post_data['destination_longitude'],
-                    seat_count=post_data['passenger_amt'],
-                    fare_id=fare_id
-                )
+                response = client.get_products(
+                    post_data['current_latitude'], post_data['current_longitude'])
 
-                request = response.json
-                request_id = request.get('request_id')
+                products = response.json.get('products')
 
-                return JsonResponse(request_id, safe=False)
-
-            elif post_data.get('ride_details'):
-
-                response = client.get_ride_details(request_id)
-
-                ride = response.json
-
-                return JsonResponse(ride)
-
-            elif post_data.get('cancel_ride', False):
-
-                response = client.cancel_ride(request_id)
-
-                ride = response.json
-
-                return JsonResponse(ride, safe=False)
+                return JsonResponse(products, safe=False)
 
             else:
 
-                return JsonResponse({"message": "Please input either display_products, get_estimate, request_ride, ride_details or cancel_ride as boolean to proceed"})
+                return JsonResponse({"message": "Please input either display_products, get_estimate, request_ride, ride_details or cancel_ride as boolean value to proceed or ensure that each item is set to true in ascending order"})
 
         elif post_data.get('uber_code_url', False):
 
