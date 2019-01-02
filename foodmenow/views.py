@@ -108,7 +108,7 @@ def restaurant_details(request, id):
 @csrf_exempt
 def uber_request(request):
 
-    if request.POST:
+    if request.method == 'POST':
 
         auth_flow = AuthorizationCodeGrant(
             UBER_CLIENT_ID,
