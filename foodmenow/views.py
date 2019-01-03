@@ -69,8 +69,8 @@ def restaurant_search(request):
                    'longitude': request.GET['longitude'],
                    'radius': request.GET.get('radius', ''),
                    'price': request.GET.get('price', ''),
-                   'categories': request.GET.get('categories', ''),
-                   'term': 'restaurants, food',
+                   'categories': request.GET.get('categories', '').lower(),
+                   'term': 'restaurants',
                    'limit': request.GET.get('limit', 25),
                    }
 
@@ -79,6 +79,8 @@ def restaurant_search(request):
 
         data = r.json()
 
+        import pdb
+        pdb.set_trace()
         return JsonResponse(data)
 
 
