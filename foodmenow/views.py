@@ -36,7 +36,7 @@ def restaurant_search(request):
 
         if user:
 
-            category_list = [", ".join(user.preference.food_genre)]
+            category_list = ",".join(user.preference.food_genre)
 
             payload = {'latitude': request.GET.get('latitude', ''),
                        'longitude': request.GET.get('longitude', ''),
@@ -44,6 +44,7 @@ def restaurant_search(request):
                        'price': user.preference.price_max,
                        'categories': category_list,
                        'term': 'restaurants',
+                       'limit': request.GET.get('limit', 25),
                        }
 
             r = requests.get('https://api.yelp.com/v3/businesses/search',
@@ -69,8 +70,8 @@ def restaurant_search(request):
                    'radius': request.GET.get('radius', ''),
                    'price': request.GET.get('price', ''),
                    'categories': request.GET.get('categories', ''),
-                   'term': ['restaurants', 'food'],
-                   'limit': 25,
+                   'term': 'restaurants, food',
+                   'limit': request.GET.get('limit', 25),
                    }
 
         r = requests.get('https://api.yelp.com/v3/businesses/search',
