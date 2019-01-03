@@ -229,7 +229,7 @@ def uber_request(request):
                 UBER_CLIENT_ID,
                 {'request'},
                 UBER_CLIENT_SECRET,
-                'https://react-foodme.herokuapp.com/',
+                'https://react-foodme.herokuapp.com/restaurant',
                 state
             )
 
