@@ -115,7 +115,7 @@ def uber_request(request):
             UBER_CLIENT_ID,
             {'request'},
             UBER_CLIENT_SECRET,
-            'https://react-foodme.herokuapp.com/',
+            'https://react-foodme.herokuapp.com',
         )
 
         try:
@@ -138,7 +138,7 @@ def uber_request(request):
                 uber_user_credentials['expires_in_seconds'],
                 set(uber_user_credentials['scopes']),
                 'authorization_code',
-                'https://react-foodme.herokuapp.com/',
+                'https://react-foodme.herokuapp.com',
                 UBER_CLIENT_SECRET,
                 uber_user_credentials['refresh_token']
             )
@@ -232,7 +232,7 @@ def uber_request(request):
                 UBER_CLIENT_ID,
                 {'request'},
                 UBER_CLIENT_SECRET,
-                'https://react-foodme.herokuapp.com/',
+                'https://react-foodme.herokuapp.com',
                 state
             )
 
