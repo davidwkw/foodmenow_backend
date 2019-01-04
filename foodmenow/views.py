@@ -79,8 +79,6 @@ def restaurant_search(request):
 
         data = r.json()
 
-        import pdb
-        pdb.set_trace()
         return JsonResponse(data)
 
 
