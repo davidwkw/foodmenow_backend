@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'food_me_now_backend.wsgi.application'
 # Database
 
 DATABASES = {
-    dj_database_url.config(),
+    'default': dj_database_url.config(),
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     #     'NAME': 'foodmenow',
