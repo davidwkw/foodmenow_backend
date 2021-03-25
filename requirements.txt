@@ -18,7 +18,7 @@ PyJWT==1.7.1
 pylint==2.2.2
 python-dotenv==0.10.1
 pytz==2018.7
-PyYAML==3.13
+PyYAML==5.4
 requests==2.21.0
 six==1.12.0
 uber-rides==0.6.0
