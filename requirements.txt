@@ -22,7 +22,7 @@ PyYAML==3.13
 requests==2.21.0
 six==1.12.0
 uber-rides==0.6.0
-urllib3==1.24.1
+urllib3==1.26.5
 whitenoise==4.1.2
 wincertstore==0.2
 wrapt==1.10.11
